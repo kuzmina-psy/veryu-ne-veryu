@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проявленность — интерактив</title>
+<link rel="icon" href="favicon.svg">
+<style>
+:root{--paper:#0C0C0D;--ink:#F4EFE4;--accent:#0A0A0B;--tint:#232327;--soft:#161618;--line:#35322B;--muted:#A9A498;--on:#FFFCF7;--wine:#D2B36A;--wine-deep:#A9843C;--gold:linear-gradient(135deg,#F3E6B8 0%,#D2B36A 45%,#A9843C 100%);--onGold:#17130A;--serif:Georgia,"Times New Roman",serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif;line-height:1.6;-webkit-text-size-adjust:100%}
+.wrap{max-width:560px;margin:0 auto;padding:14px 16px 56px}
+.stages{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:4px 0 16px}
+.stages button{border:0;background:none;padding:0;font:inherit;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#B3A996;text-align:left;cursor:default}
+.stages button:before{content:"";display:block;height:2px;background:var(--line);margin-bottom:7px}
+.stages button.seen{color:var(--muted);cursor:pointer}
+.stages button.seen:before{background:#A8AE94}
+.stages button.cur{color:var(--ink);font-weight:700}
+.stages button.cur:before{background:var(--wine);height:3px;margin-bottom:6px}
+.hero{border-radius:14px;overflow:hidden;background:var(--accent);margin-bottom:14px}
+.hero .ph{position:relative}
+.hero .ph img{width:100%;height:auto;aspect-ratio:1050/1498;display:block;object-fit:cover}
+.hero .ph:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,0) 64%,rgba(10,10,11,.6) 80%,rgba(10,10,11,1) 100%)}
+.hero .cap{position:relative;z-index:1;margin-top:-20%;padding:0 22px 26px;color:var(--on);text-align:left}
+.hero .name{font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 3px;color:var(--on)}
+.hero .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 12px;color:#C2A66B}
+.hero .title{font-family:var(--serif);font-weight:400;font-size:30px;line-height:1.05;letter-spacing:-.6px;margin:0 0 8px}
+.hero .sub{font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.35;margin:0;color:#F3EBDD}
+.cover{position:relative;border-radius:14px;overflow:hidden;color:var(--on);background:#0A0A0B url(cover.jpg) center top/100% auto no-repeat}
+.cover:before{content:"";position:absolute;left:0;right:0;top:0;aspect-ratio:1152/2070;background:linear-gradient(180deg,rgba(10,10,11,0) 0,rgba(10,10,11,0) 28%,rgba(10,10,11,.5) 42%,rgba(10,10,11,.58) 78%,rgba(10,10,11,1) 97%)}
+.cover .sp{aspect-ratio:1/.66}
+.cover .in{position:relative;padding:0 22px 26px;text-shadow:0 1px 8px rgba(20,20,19,.75)}
+.cover .top{margin-bottom:12px}
+.cover .name{font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 3px}
+.cover .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;margin:0;color:#E6D3A3}
+.cover .sub{font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.35;margin:0 0 10px;color:#F1E6CC}
+.cover h1{color:var(--on);font-size:clamp(23px,6.6vw,29px);margin-bottom:12px}
+.cover .lead{color:#FFFCF7;font-size:14.5px;line-height:1.5;margin-bottom:9px}
+.cover .muted{color:#EFEADF;font-size:12.5px}
+.cover label{color:var(--on);margin-top:14px}
+.cover textarea{border-color:transparent;min-height:80px;text-shadow:none;background:rgba(255,252,247,.93)}
+.cover .btn{text-shadow:none;margin-top:14px}
+.cover .btn.light{color:#0A0A0B}
+.cover .btn.light:disabled{background:rgba(255,252,247,.55);color:#0A0A0B;cursor:default}
+@media print{.cover{background:#fff;color:#111}.cover:before,.cover .sp{display:none}}
+.panel{background:var(--soft);border-radius:14px;padding:28px 22px;border-top:3px solid var(--wine)}
+h1{font-family:var(--serif);font-weight:400;margin:0 0 16px;font-size:clamp(27px,7.6vw,34px);letter-spacing:-.8px;line-height:1.14}
+h2{font-family:var(--serif);font-weight:400;margin:0 0 10px;font-size:24px;line-height:1.15}
+p{margin:0 0 14px}
+.lead{font-size:15.5px}
+.muted{color:var(--muted);font-size:13.5px}
+label{display:block;font-family:var(--serif);font-size:19px;line-height:1.3;margin:22px 0 0}
+textarea,input[type=text]{width:100%;border:1px solid #AA9F8D;border-radius:8px;background:var(--paper);padding:14px;font:inherit;font-size:16px;color:var(--ink);margin-top:10px}
+textarea{min-height:104px;resize:vertical}
+textarea:focus,input:focus{outline:2px solid var(--wine);outline-offset:2px}
+::placeholder{color:#A39A8A}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:54px;border:0;cursor:pointer;text-align:center;text-decoration:none;padding:14px 18px;border-radius:28px;font:inherit;font-size:15px;letter-spacing:.02em;margin-top:18px}
+.btn:focus-visible,.back:focus-visible,.link:focus-visible{outline:2px solid #806d52;outline-offset:3px}
+.primary{background:var(--wine);color:var(--on)}
+.primary:disabled{background:#C9BFAF;color:#FCFAF6;cursor:default}
+.secondary{background:transparent;color:var(--wine);border:1px solid var(--wine);margin-top:10px}
+.light{background:var(--on);color:var(--wine-deep)}
+.saved{text-align:center;font-size:13.5px;color:var(--muted);margin:10px 0 0}
+.saved:empty{display:none}
+.link{background:none;border:0;color:var(--muted);font:inherit;font-size:13.5px;text-decoration:underline;cursor:pointer;margin:22px auto 0;display:block}
+.deck{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:18px}
+.back{aspect-ratio:5/7;border-radius:6px;border:0;cursor:pointer;background:var(--wine);position:relative;padding:0;transition:transform .15s}
+.back:before{content:"";position:absolute;inset:3px;border:1px solid rgba(194,166,107,.75);border-radius:4px}
+.back:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;transform:rotate(45deg);background:#C2A66B}
+.back:hover{transform:translateY(-2px)}
+.back:active{transform:scale(.94)}
+.face{background:var(--accent);color:var(--on);border-radius:14px;padding:26px 22px;margin-top:18px;position:relative;border-top:5px solid var(--wine)}
+.face:before{content:"";position:absolute;inset:7px;border:1px solid rgba(194,166,107,.4);border-radius:9px;pointer-events:none}
+.face.anim{animation:in .5s ease}
+@keyframes in{from{opacity:0;transform:rotateY(75deg)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.face.anim{animation:none}.back{transition:none}}
+.face .deckname{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#C2A66B;margin-bottom:14px}
+.face h3:after{content:"";display:block;width:44px;height:2px;background:#C2A66B;margin-top:14px}
+.face h3{font-family:var(--serif);font-weight:400;margin:0 0 14px;font-size:27px;letter-spacing:-.3px;line-height:1.12}
+.face p{color:#EFE8DB;margin:0 0 12px;font-size:15.5px}
+.face .lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#C2A66B;margin:20px 0 7px}
+.face .strong{font-family:var(--serif);font-style:italic;color:var(--on);font-size:18.5px;line-height:1.4;margin:0}
+.face ul.ex{list-style:none;margin:0;padding:0}
+.face ul.ex li{color:#EFE8DB;font-size:15px;line-height:1.5;padding:7px 0 7px 16px;position:relative;border-top:1px solid rgba(230,220,203,.18)}
+.face ul.ex li:first-child{border-top:0}
+.face ul.ex li:before{content:"";position:absolute;left:0;top:16px;width:5px;height:5px;transform:rotate(45deg);background:#C2A66B}
+.recap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:16px 0 4px}
+.sum{border-top:1px solid var(--line);padding:13px 0}
+.sum:first-child{border-top:0}
+.sum b{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:400;margin-bottom:4px}
+.sum span{white-space:pre-wrap;word-break:break-word}
+.block{margin-top:28px}
+.block>h2{font-family:Arial,sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--wine);font-weight:700;margin:0;padding-bottom:8px;border-bottom:2px solid var(--wine)}
+.closing{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.32;margin:30px 0 6px;color:var(--wine);padding-left:16px;border-left:3px solid var(--wine)}
+.med{margin-top:14px;border-radius:14px;background:linear-gradient(165deg,var(--wine) 0%,var(--wine-deep) 70%);color:var(--on);overflow:hidden}
+.med .in{padding:28px 22px 26px}
+.med .eyebrow{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#D8C48F;margin:0 0 12px}
+.med h2{font-size:28px;line-height:1.14;letter-spacing:-.5px;margin-bottom:16px}
+.med p{color:#EFE8DB;font-size:15.5px}
+.med .muted{color:#E4E6D6;font-size:13.5px}
+.med audio{width:100%;margin-top:6px}
+.med label{color:var(--on)}
+.med textarea{border-color:transparent}
+.contacts{margin-top:14px}
+.mess{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:16px}
+.mess a{display:flex;align-items:center;justify-content:center;min-height:54px;border:1px solid var(--wine);border-radius:8px;color:var(--wine);text-decoration:none;font-size:14.5px;padding:10px 4px}
+.mess a:hover{background:var(--tint)}
+.mess a:focus-visible{outline:2px solid #806d52;outline-offset:3px}
+.sign{text-align:center;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:15px;margin-top:22px}
+
+/* тёмная золотая тема */
+.stages button{color:#6F6A5E}
+.stages button:before{background:#2A2824}
+.stages button.seen{color:#A9A498}
+.stages button.seen:before{background:#8E7435}
+.panel{border:1px solid #2A2824;border-top:1px solid var(--wine)}
+textarea,input[type=text]{background:#0F0F10;color:var(--ink);border-color:#4A4437}
+::placeholder{color:#7D776A}
+.primary,.light{background:var(--gold);color:var(--onGold);font-weight:700}
+.primary:disabled{background:#2A2824;color:#6F6A5E}
+.secondary{color:var(--wine);border-color:#8E7435}
+.back{background:var(--gold)}
+.back:before{border-color:rgba(23,19,10,.45)}
+.back:after{background:#17130A}
+.face{border:1px solid #8E7435;border-top:3px solid var(--wine)}
+.face:before{display:none}
+.med{background:var(--soft);border:1px solid #8E7435}
+.med .light{color:var(--onGold)}
+.mess a{border-color:#8E7435}
+.mess a:hover{background:#1E1D1A}
+.cover{border:1px solid #2A2824}
+.cover textarea{background:rgba(12,12,13,.72);color:var(--on);border:1px solid rgba(210,179,106,.55)}
+.cover ::placeholder{color:#C9C2B2}
+.cover .btn.light{color:var(--onGold)}
+.cover .btn.light:disabled{background:rgba(210,179,106,.35);color:#E9E2D0}
+.cover .eyebrow,.cover .sub{color:#EBD9A4}
+.printonly{display:none}
+@media print{
+  body{background:#fff}
+  .stages,.btn,.link,audio,.noprint,.hero{display:none!important}
+  .panel,.med,.med .in{border:0;padding:0;background:#fff;color:#111}
+  .med p,.med .muted,.med label{color:#111}
+  .face{background:#fff;color:#111;border:1px solid #111;break-inside:avoid}
+  .face:before{display:none}
+  .face p,.face .strong,.face h3{color:#111}.face .lbl,.face .deckname{color:#555}
+  .printonly{display:block}
+  textarea{border:0;padding:0;min-height:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="stages" id="stages" aria-label="Этапы"></nav>
+  <main id="app"></main>
+</div>
+<script>
+// Постоянная ссылка на медитацию: вписать после публикации, она попадёт в сохранённый результат.
+var MEDITATION_URL = "https://kuzmina-psy.github.io/veryu-ne-veryu/proyavlennost/shag.mp3";
+var AUDIO_SRC = "shag.mp3";
+var DECKS = {"money": [{"n": 1, "title": "МНЕ НЕ ПОЛОЖЕНО", "text": "Жить богаче, чем сейчас, для меня означает взять больше, чем мне разрешено. Мне неловко пользоваться даже тем, что уже доступно.", "question": "По каким признакам я решаю, сколько мне можно иметь?", "examples": ["По тому, сколько зарабатывали мои родители.", "По тому, сколько получают люди моей профессии.", "По тому, насколько сильно я устаю."]}, {"n": 2, "title": "СНАЧАЛА ЗАСЛУЖИ", "text": "Спокойно принять деньги я могу только после того, как много поработаю, в чём-то себе откажу или принесу пользу другим.", "question": "Какие условия я ставлю себе, прежде чем принять деньги?", "examples": ["Сначала закончу все дела и помогу всем, кто просил.", "Сначала докажу, что работаю больше остальных.", "Сначала откажу себе в чём-то другом."]}, {"n": 3, "title": "ЦЕНА ИЗНУРЕНИЯ", "text": "Деньги я считаю заслуженными, только если ради них пришлось устать. Когда можно заработать больше и легче, я этому не доверяю.", "question": "Как я отношусь к деньгам, которые пришли легко?", "examples": ["Считаю их случайностью и жду подвоха.", "Мне неловко брать полную цену за лёгкую работу.", "Думаю, что настоящая работа выглядит тяжелее."]}, {"n": 4, "title": "ОБЕСЦЕНЕННЫЙ ДАР", "text": "Свои способности я воспринимаю как нечто обычное. Мне трудно увидеть ценность того, что получается естественно.", "question": "Что я умею и даю другим, но почти не учитываю как собственный вклад?", "examples": ["Умею выслушать так, что человеку становится яснее.", "Быстро нахожу решение там, где другие долго ищут.", "Собираю людей и довожу общее дело до конца."]}, {"n": 5, "title": "ВЕЧНАЯ ПОДГОТОВКА", "text": "Чтобы изменить финансовое положение, мне всё ещё чего-то недостаёт: знаний, уверенности, опыта. Подготовка постоянно отодвигает действие.", "question": "Как я пойму, что подготовки достаточно для первого шага?", "examples": ["Когда получу ещё один диплом.", "Когда перестану бояться вопросов, на которые не знаю ответа.", "Когда первый клиент заплатит и останется доволен."]}, {"n": 6, "title": "ЗАПРЕТ НА ЖЕЛАНИЕ", "text": "Хотеть большего мне стыдно. Я уменьшаю свои желания, чтобы оставаться в своих глазах хорошим человеком.", "question": "Какие финансовые желания мне трудно произнести даже наедине с собой?", "examples": ["Хочу зарабатывать больше мужа.", "Хочу дом, который в моём окружении сочли бы роскошью.", "Хочу деньги, о которых не нужно ни перед кем отчитываться."]}, {"n": 7, "title": "ЧУЖАЯ МЕРА УСПЕХА", "text": "Я стремлюсь к достатку, который произведёт впечатление на других. За сравнением с ними я перестаю понимать, какая жизнь нужна мне.", "question": "На что пошли бы мои деньги, если бы об этом никто не узнал?", "examples": ["На год без работы и без объяснений.", "На учёбу, которую близкие считают баловством.", "На маленькую квартиру у моря вместо статусной машины."]}, {"n": 8, "title": "НЕУДОБНЫЙ РАЗГОВОР", "text": "Обсуждение денег вызывает напряжение. Проще согласиться, промолчать или догадаться, чем прямо обозначить свои интересы.", "question": "Что я ожидаю услышать в ответ, если открыто заговорю о деньгах?", "examples": ["«Тебе только деньги и нужны».", "«Дорого, я найду дешевле».", "Молчание, после которого мне станет стыдно."]}, {"n": 9, "title": "ОТКАЗ КАК ПРИГОВОР", "text": "Когда мне отказывают в деньгах или не принимают моё предложение, я делаю вывод, что мало значу. После этого трудно пробовать снова.", "question": "Какой вывод о себе я делаю, когда получаю отказ?", "examples": ["Моя работа никому не нужна.", "Я прошу слишком много.", "Со мной не хотят иметь дела."]}, {"n": 10, "title": "ПОЛУЧИТЬ И НЕМЕДЛЕННО ВЕРНУТЬ", "text": "Когда я что-то получаю, мне становится неспокойно. Хочется сразу отплатить: услугой, подарком, уступкой или долгими благодарностями.", "question": "Что я чувствую, когда принимаю и ничего не даю в ответ сразу?", "examples": ["Тревогу: теперь я в долгу.", "Стыд: взято больше, чем мне положено.", "Страх, что обо мне подумают плохо."]}, {"n": 11, "title": "ОТДАВАТЬ С ЗАПАСОМ", "text": "Своего вклада мне всегда мало. Я добавляю время, внимание, усилия или деньги сверх того, о чём договорились.", "question": "Как я определяю, что отдано уже достаточно?", "examples": ["Когда человек несколько раз сказал спасибо.", "Когда сил уже не осталось.", "Никак: мне каждый раз мало."]}, {"n": 12, "title": "СЕБЕ ПО ОСТАТОЧНОМУ ПРИНЦИПУ", "text": "На чужие нужды у меня всегда находится причина потратить. Свои я легко откладываю: на себя идёт то, что осталось после всех.", "question": "На какую свою потребность у меня раз за разом не остаётся денег?", "examples": ["Отдых и отпуск.", "Своё здоровье: врачи, массаж, спорт.", "Красивые вещи для себя."]}, {"n": 13, "title": "ДОБРОТА БЕЗ ГРАНИЦ", "text": "Мне трудно отказать, когда просят денег, даже если помощь ломает мои планы. Если человек расстроится, я решу, что у меня нет сердца.", "question": "Где заканчивается моя готовность помогать и начинается страх отказать?", "examples": ["Там, где я даю в долг и заранее знаю, что не вернут.", "Там, где соглашаюсь, чтобы меня не сочли жадным человеком.", "Там, где после своего «да» я злюсь на себя."]}, {"n": 14, "title": "ПОКУПКА БЛИЗОСТИ", "text": "Подарками и деньгами я удерживаю хорошее отношение к себе. Мне трудно поверить, что меня будут ценить и без этого.", "question": "Чего я жду от отношений в ответ на свою щедрость?", "examples": ["Что меня не оставят.", "Что со мной будут считаться.", "Что меня будут любить и звать."]}, {"n": 15, "title": "ПОДАРОК С КРЮЧКОМ", "text": "Когда мне предлагают деньги или помощь, я жду, что за это чего-то потребуют. Принимать трудно: боюсь оказаться в долгу и потерять свободу.", "question": "Какие обязательства в этом предложении названы прямо, и какие я додумываю?", "examples": ["Условий никто не называл, их дорисовало моё воображение.", "Мне прямо сказали, чего ждут взамен.", "Так уже было с другим человеком, и я переношу тот опыт сюда."]}, {"n": 16, "title": "ЗАБОТА В ОБМЕН НА ЗАВИСИМОСТЬ", "text": "Если я начну обеспечивать себя, обо мне могут перестать заботиться. Пока я нуждаюсь в помощи, близкий человек остаётся рядом.", "question": "Что изменится в отношениях, когда я смогу обеспечивать себя?", "examples": ["Обо мне перестанут заботиться.", "Партнёр почувствует себя ненужным.", "Нам станет не о чем договариваться, и мы отдалимся."]}, {"n": 17, "title": "ДЕНЬГИ ДАЮТ ПРАВО РЕШАТЬ", "text": "Кто платит, тот и решает. Тот, кто даёт деньги, получает власть над решениями другого.", "question": "Какие права я связываю с тем, кто даёт деньги?", "examples": ["Право решать, на что тратить.", "Право требовать отчёта.", "Право на последнее слово в споре."]}, {"n": 18, "title": "СЕМЕЙНЫЙ ПОТОЛОК", "text": "Жить богаче своей семьи для меня означает предать близких. Когда доход растёт, я боюсь перестать быть для них своим человеком.", "question": "Что для меня означало бы иметь больше, чем было принято в моей семье?", "examples": ["Стать чужим человеком для своих.", "Взять на себя содержание всех родных.", "Признать, что родители могли жить по-другому."]}, {"n": 19, "title": "ВИНА ЗА ДОСТАТОК", "text": "Мне трудно жить хорошо, когда рядом кому-то не хватает. Хочется скрыть свой достаток, уменьшить его или сразу поделиться.", "question": "Как я обращаюсь со своими деньгами, когда узнаю о чужих трудностях?", "examples": ["Сразу перевожу деньги, даже если не просили.", "Скрываю покупки и поездки.", "Откладываю свою трату: сейчас не время."]}, {"n": 20, "title": "УСПЕХ И РИСК ПОТЕРЯТЬ ОТНОШЕНИЯ", "text": "Если у меня станет больше денег, мне начнут завидовать, со мной станут соперничать или от меня отдалятся. Пока всё по-прежнему, близкие остаются рядом.", "question": "Чьей реакции на мои деньги я боюсь, и что похожее уже было в моей жизни?", "examples": ["Подруг: после моего повышения одна перестала звонить.", "Мамы: в нашей семье богатых называли ворами.", "Мужа: он обижается, когда мой доход выше."]}, {"n": 21, "title": "ДОСТАТОК ПОД ПРИЦЕЛОМ", "text": "Когда мой достаток заметен, я чувствую себя под ударом: меня могут использовать, осудить, обмануть или отнять заработанное.", "question": "Чего именно я жду, если мой достаток станет заметен?", "examples": ["Родственники начнут просить в долг.", "Обо мне станут говорить за спиной.", "Придут проверки или мошенники."]}, {"n": 22, "title": "ОЖИДАНИЕ РАСПЛАТЫ", "text": "Когда с деньгами везёт, мне тревожно: за хорошим должно прийти плохое. После успеха я не могу расслабиться.", "question": "Что я начинаю ожидать или делать, когда мои дела идут лучше?", "examples": ["Жду болезни или поломки.", "Быстро трачу, пока не отняли.", "Никому не рассказываю, чтобы не сглазить."]}, {"n": 23, "title": "БОЛЬШЕ ДЕНЕГ — МЕНЬШЕ ЖИЗНИ", "text": "Больше денег для меня означает больше нагрузки. В моём представлении вместе с доходом уходят отдых, близость и свободное время.", "question": "Чем, по моему убеждению, придётся заплатить за больший доход?", "examples": ["Работой без выходных.", "Временем с детьми.", "Здоровьем."]}, {"n": 24, "title": "ЗАПАС, КОТОРОГО ВСЕГДА МАЛО", "text": "Накопления растут, спокойнее мне не становится. Какой бы ни была сумма, её мало, чтобы чувствовать себя в безопасности.", "question": "Какой запас я соглашусь считать достаточным?", "examples": ["Тот, которого хватит на полгода без дохода.", "Тот, из которого можно оплатить лечение близкого человека.", "Никакой: цифра растёт, тревога остаётся."]}, {"n": 25, "title": "ДЕНЬГИ ЕСТЬ, ПОЛЬЗОВАТЬСЯ НЕЛЬЗЯ", "text": "Я могу оплатить трату на здоровье, удобство или удовольствие и всё равно тревожусь и ругаю себя. Сберечь деньги становится важнее, чем ими пользоваться.", "question": "На что мне особенно трудно тратить, хотя средства позволяют?", "examples": ["На врача, пока терпимо.", "На такси и доставку.", "На отдых, от которого нет практической пользы."]}, {"n": 26, "title": "ПОТЕРЯ РАВНА КАТАСТРОФЕ", "text": "Потерять часть денег для меня равносильно потере всего. Поэтому я не решаюсь пробовать новое.", "question": "Какую сумму я могу потерять без ущерба для жизни? Что я чувствую, когда называю её?", "examples": ["Месячный доход. Признавать это страшно.", "Десятую часть накоплений. Чувствую облегчение: жизнь на этом продолжается.", "Любую сумму, кроме жилья."]}, {"n": 27, "title": "СРОЧНО ПРЕВРАТИТЬ В УДОВОЛЬСТВИЕ", "text": "Когда появляются деньги, мне сильно хочется сразу их потратить. Отложенные деньги для меня — удовольствие, которого приходится ждать.", "question": "Что я чувствую в ту минуту, когда деньги пришли и хочется их потратить?", "examples": ["Нарастает возбуждение, трудно усидеть на месте.", "Появляется страх, что деньги исчезнут сами.", "Приходит мысль: столько ожидания, теперь можно."]}, {"n": 28, "title": "КОМПЕНСАЦИЯ ЗА ПЕРЕЖИТОЕ", "text": "Покупкой я возмещаю себе усталость, обиду или годы лишений. В момент траты хочется наконец получить то, чего давно не хватало.", "question": "Какое чувство я хочу унять этой покупкой?", "examples": ["Усталость после тяжёлой недели.", "Обиду: обо мне никто не позаботился.", "Одиночество."]}, {"n": 29, "title": "ДОСТАТОК НАПОКАЗ", "text": "Дорогие вещи помогают мне чувствовать себя значимее. Ради впечатления я трачу больше, чем могу.", "question": "Какого отношения к себе я добиваюсь своими тратами?", "examples": ["Чтобы меня считали успешным человеком.", "Чтобы со мной разговаривали на равных.", "Чтобы родители мной гордились."]}, {"n": 30, "title": "ЦИФРЫ, ОТ КОТОРЫХ ХОЧЕТСЯ ОТВЕРНУТЬСЯ", "text": "Счета, расходы и долги вызывают у меня такое напряжение, что я откладываю день, когда придётся во всём разобраться. Решения принимаю на глаз.", "question": "На какую цифру в своих финансах мне сейчас труднее всего посмотреть?", "examples": ["На общую сумму долгов.", "На то, сколько уходит на мелкие траты за месяц.", "На свой реальный доход за год."]}, {"n": 31, "title": "БУДУЩЕЕ ЗАПЛАТИТ", "text": "Я хочу получить что-то сейчас и мало думаю о том, как буду расплачиваться. Платить придётся мне в будущем, и я не знаю, какие у меня тогда будут силы и доходы.", "question": "На какие будущие силы и доходы я рассчитываю, когда беру обязательства сегодня?", "examples": ["На то, что буду зарабатывать больше, чем сейчас.", "На то, что здоровье и силы останутся прежними.", "На то, что как-нибудь выкручусь."]}, {"n": 32, "title": "МЕЧТА ВМЕСТО ПРОБЫ", "text": "Мечтать о будущем достатке приятно: это даёт надежду. Пробовать я откладываю, потому что первая же попытка покажет мои ограничения и ошибки.", "question": "Каким небольшим действием я могу проверить свою идею на деле?", "examples": ["Предложу услугу трём знакомым за деньги.", "Назначу цену и опубликую одно объявление.", "Посчитаю расходы на первый месяц."]}, {"n": 33, "title": "ГАРАНТИЯ ПЕРЕД СТАРТОМ", "text": "Я хочу действовать только тогда, когда сомнений не останется. Пока есть риск неудачи, даже подготовленный шаг я считаю преждевременным.", "question": "Какую неизвестность мне труднее всего выдержать?", "examples": ["Не знать, окупятся ли вложения.", "Не знать, что скажут люди.", "Не знать, справлюсь ли я."]}, {"n": 34, "title": "МАЛЕНЬКОЕ НЕ СЧИТАЕТСЯ", "text": "Небольшие улучшения я не ценю: рядом с большой целью они выглядят мелочью. Если результат не меняет всё сразу, я не вижу смысла стараться.", "question": "Какое доступное улучшение я сейчас отбрасываю как слишком мелкое?", "examples": ["Плюс десять процентов к цене.", "Одного нового клиента в месяц.", "Небольшую сумму, отложенную с каждого дохода."]}, {"n": 35, "title": "ДЕНЬГИ КАК МЕРА СЕБЯ", "text": "От количества денег зависит, уважаю ли я себя. Когда их больше, я собой горжусь. Когда меньше, считаю, что гордиться нечем.", "question": "Как меняется моё отношение к себе, когда денег становится больше или меньше?", "examples": ["При росте дохода держусь увереннее и говорю свободнее.", "При падении избегаю встреч и разговоров о делах.", "Без денег перестаю себя уважать."]}, {"n": 36, "title": "ЖИЗНЬ ПОСЛЕ НУЖНОЙ СУММЫ", "text": "Отдыхать, радоваться и жить так, как хочется, я разрешу себе, когда заработаю нужную сумму. Когда сумма набирается, я поднимаю планку.", "question": "Что я разрешу себе только после нужной суммы? Что из этого доступно уже сейчас?", "examples": ["Отпуск. Три дня у моря доступны уже сейчас.", "Заняться здоровьем. К врачу можно записаться на этой неделе.", "Радоваться. Для этого сумма не требуется."]}], "shadow": [{"n": 1, "title": "СКУПЕЦ", "resource": "оставлять себе.", "text": "Тебя могут обвинить в жадности в тот момент, когда ты перестанешь оплачивать чужое удобство. Пока страх этой оценки сильнее собственных желаний, твоими деньгами распоряжается тот, перед кем тебе неловко.", "message": "Оставь себе то, что уже собираешься отдать из чувства вины. Выдержи чужое недовольство. Твоим планам тоже нужны деньги."}, {"n": 2, "title": "ВЕДЬМА", "resource": "использовать свою силу для себя.", "text": "Ты умеешь замечать возможности, понимать мотивы людей, находить решения. Для других ты делаешь это легко. Когда речь заходит о твоей собственной выгоде, эта сила куда-то девается.", "message": "Направь свои способности туда, где результат достанется тебе. Тебе придётся выдержать мысль, что сегодня ты действуешь в собственных интересах."}, {"n": 3, "title": "БУНТАРЬ", "resource": "выходить из чужих правил.", "text": "Правило может давно мешать тебе жить, а ты продолжаешь соблюдать его ради образа хорошего человека. За эту хорошесть приходится платить своими возможностями.", "message": "Назови правило, которому пора перестать подчиняться. Проверь реальные последствия его нарушения. Чьё разрешение ты всё ещё ждёшь, чтобы распорядиться своей жизнью?"}, {"n": 4, "title": "ХИЩНИК", "resource": "хотеть и идти за желаемым.", "text": "Ты можешь долго смотреть на возможность, надеясь, что тебя заметят и пригласят. Инициатива пугает: придётся обнаружить свой интерес и встретиться с ответом.", "message": "Обозначь, чего хочешь. Подойди, предложи, попроси, вступи в переговоры. Твоё желание станет частью реальности, когда ты начнёшь действовать."}, {"n": 5, "title": "КОНКУРЕНТ", "resource": "разрешить себе претендовать на победу.", "text": "Удобно восхищаться чужими результатами с безопасного расстояния. Участие потребует признать: ты тоже хочешь это место, эти возможности, эти деньги. И можешь проиграть.", "message": "Вступи туда, где результат тебе действительно нужен. Разреши себе хотеть победы достаточно сильно, чтобы подготовиться и выдержать соревнование."}, {"n": 6, "title": "БОСС", "resource": "распоряжаться своей жизнью.", "text": "Пока ты ждёшь согласия всех участников, решения принимаются без тебя. Чужие сроки, потребности и настроения занимают место твоего выбора.", "message": "Прими решение в той области, где право решать принадлежит тебе. Назови свои условия. Выдержи ответственность за то, что теперь это твой выбор."}, {"n": 7, "title": "ЗАДИРА", "resource": "вступать в необходимый конфликт.", "text": "Согласие может сохранять приятную атмосферу ценой твоих денег, времени и уважения к себе. Внешне разговор закончен, внутри ты продолжаешь его ещё несколько дней.", "message": "Верни своё возражение в настоящий разговор. Скажи, что тебя не устраивает и что ты требуешь пересмотреть. Пусть в этих отношениях будет место и твоему несогласию."}, {"n": 8, "title": "СУДЬЯ", "resource": "выносить собственное решение.", "text": "Понимать чужие обстоятельства можно бесконечно. В какой момент ты решаешь, что предложение тебе не подходит, обещание нарушено, цена для тебя неприемлема?", "message": "Сформулируй свой вывод и поступи в соответствии с ним. Ты вправе отказать даже тому, чьи причины хорошо понимаешь."}, {"n": 9, "title": "КРИТИК", "resource": "требовать качества и результата.", "text": "Ты раз за разом теряешь на одном и том же и каждый раз находишь этому объяснение. Результат уже показывает: так не работает.", "message": "Посмотри на факты без скидки на старания. Что именно не работает? Назови слабое место и измени конкретное действие. Сочувствие к себе совместимо с требовательностью."}, {"n": 10, "title": "ЛЕНТЯЙ", "resource": "прекращать бессмысленное изнурение.", "text": "Усталость может давать чувство морального превосходства: ты хотя бы много работаешь. Но сколько сил уходит на поддержание занятости, которая почти ничего тебе не приносит?", "message": "Убери одно бесполезное усилие. Выдержи вину за освободившееся время. Ищи способ, который даёт больше результата, даже если с ним пропадёт привычный повод гордиться усталостью."}, {"n": 11, "title": "ДУРАК", "resource": "пережить собственную неловкость.", "text": "Ты хочешь выглядеть человеком, который во всём разбирается, и поэтому остаёшься там, где всё знакомо. Платишь за это знаниями и возможностями, которые проходят мимо.", "message": "Задай вопрос, который стесняешься задать. Покажи работу, которой ещё есть куда расти. Выдержи несколько минут неловкости ради того, чему хочешь научиться."}, {"n": 12, "title": "НЕУДАЧНИК", "resource": "действовать с возможностью проигрыша.", "text": "Пока попытка существует только в голове, ты сохраняешь образ человека, у которого могло бы получиться. Реальное действие поставит этот образ под угрозу.", "message": "Сделай попытку с приемлемой ценой ошибки. Получи настоящий результат, даже скромный. Теперь у тебя будет опыт, с которым можно работать."}, {"n": 13, "title": "ИЗГНАННИК", "resource": "выдержать неодобрение своего выбора.", "text": "Твой рост может нарушить привычное равновесие. Кто-то перестанет узнавать тебя, кто-то скажет, что ты зазнаёшься, кому-то станет неудобно рядом с твоими новыми решениями.", "message": "Назови возможность, от которой ты отказываешься, чтобы к тебе относились по-прежнему. Сколько ещё ты будешь платить эту цену? Выбери то, что сохранишь за собой даже без общего одобрения."}, {"n": 14, "title": "СИРОТА", "resource": "искать поддержку за пределами привычного круга.", "text": "Можно годами ждать помощи от человека, который её не даёт. Пока ты ждёшь, ты стоишь у закрытой двери.", "message": "Признай, какой помощи ты здесь не получаешь. Попроси её у кого-то другого. Твоя жизнь шире отношений, в которых приходится ждать."}, {"n": 15, "title": "ЖЕРТВА", "resource": "признать, что мне наносят ущерб, и защитить своё.", "text": "Тебе недоплатили, долг не вернули, твоими деньгами распорядились без спроса. Ты находишь этому объяснение: «он не со зла», «у него трудный период», «меня же никто не заставлял». Пока объяснение работает, ты продолжаешь терять.", "message": "Посчитай, сколько уже потеряно: в деньгах, во времени, в силах. Скажи себе прямо: со мной поступают нечестно. Сделай один шаг защиты: запиши факты, попроси помощи, назови своё условие или подготовь выход."}, {"n": 16, "title": "МУЧЕНИК", "resource": "распоряжаться ценой своих усилий.", "text": "Ты терпишь так давно, что терпение стало частью тебя. Остановиться трудно: придётся признать, что за часть жертв тебе никто не отплатит.", "message": "Уже отданное не обязывает тебя отдавать дальше. Определи предел: сколько времени, денег и сил ты ещё вложишь и ради какого результата, который можно проверить."}, {"n": 17, "title": "ВАМПИР", "resource": "прямо предъявлять свою потребность.", "text": "Ждать, что другой догадается сам, удобно, пока хватает сил обижаться. Попросить прямо страшнее: станет видно, что тебе это нужно, и тебе могут отказать.", "message": "Скажи, что тебе нужно и о чём именно ты просишь. Человек может согласиться или отказать, выдержи любой ответ. Хватит говорить о своей потребности намёками."}, {"n": 18, "title": "ВОР", "resource": "признать желание обладать.", "text": "Чужое благополучие раздражает тебя там, где ты запрещаешь себе хотеть того же. Осуждать проще, чем признаться: я тоже этого хочу.", "message": "Назови, что из чужой жизни ты хочешь для себя. Деньги? Свободу? Влияние? Перестань прятать желание за осуждением и найди честный способ к нему прийти."}, {"n": 19, "title": "МОШЕННИК", "resource": "находить неожиданные решения.", "text": "Можно гордиться правильностью своего пути и годами упираться в одну стену. Чтобы найти другой ход, придётся признать: твой привычный способ лишь один из многих.", "message": "Найди три других пути к своей цели. Рассмотри обмен, сотрудничество, иной формат, другие условия. Выбери вариант с честными условиями, который потребует от тебя меньше сил."}, {"n": 20, "title": "ПРЕДАТЕЛЬ", "resource": "пережить обвинение в неверности прежнему выбору.", "text": "Когда ты меняешься, окружающие могут назвать это предательством. Особенно если твоя прежняя роль была им удобна и от тебя ждали, что ты будешь исполнять её всегда.", "message": "Назови то, чему ты больше не хочешь хранить верность. Обсуди, какие обязательства у тебя остаются и чем обернётся твой уход. Как бы другие ни назвали твой поступок, решать, как жить дальше, всё равно тебе."}, {"n": 21, "title": "РАЗРУШИТЕЛЬ", "resource": "завершать то, что продолжает поглощать жизнь.", "text": "Привычное дело можно тянуть и после того, как оно перестало работать. Для этого ты снова вкладываешь деньги, время и надежду, лишь бы не признавать, что оно закончилось.", "message": "Найди то, что ты продолжаешь из страха поставить точку. Посчитай, во что обойдётся ещё один год. Подготовь выход из того, что ты уже не хочешь продолжать."}, {"n": 22, "title": "ГУЛЯКА", "resource": "пользоваться своим достатком.", "text": "Можно научиться зарабатывать и копить и при этом во всём себе отказывать. Деньги на счёте есть, и каждую радость приходится перед собой оправдывать.", "message": "Выдели посильную сумму на то, чего тебе хочется. Потрать её именно на это и не наказывай себя после. Пользоваться деньгами тоже нужно уметь."}, {"n": 23, "title": "ПРЯЧУЩИЙСЯ", "resource": "решать, что о тебе увидят другие.", "text": "Укрытие даёт безопасность, но ограничивает возможность быть замеченным. Окружающие могут годами не знать, что ты умеешь, предлагаешь и чего хочешь.", "message": "Выбери одну вещь, которую сделаешь видимой сегодня. Покажи результат, обозначь интерес, сообщи о своём решении. Остальное может оставаться личным."}, {"n": 24, "title": "ТЁМНАЯ БОГИНЯ", "resource": "придавать своим желаниям вес.", "text": "Ты хорошо понимаешь, что нужно другим, и заранее уменьшаешь свои желания, чтобы всем было удобно. В итоге ты участвуешь в деле, и твоих условий в нём почти нет.", "message": "Скажи, как хочешь ты, до того как начнёшь подстраиваться. Назови свою долю денег, времени, внимания или влияния. Пусть другие увидят, что у тебя есть собственный интерес."}]};
+var KEY = "proyavlennost-v3";
+var STAGES = ["Цель","Блок","Ресурс","Действие","Результат"];
+function fresh(){ return {step:1,max:1,goal:"",postponed:"",mOrder:null,money:null,answer:"",sOrder:null,shadow:null,unpacked:false,use:"",action:"",when:"",after:""}; }
+var state = fresh();
+try{ var s = JSON.parse(localStorage.getItem(KEY)); if(s && s.step>=1 && s.step<=5) state = s; }catch(e){}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function esc(t){ return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+function shuffle(n){ var a=[],i,j,t; for(i=0;i<n;i++)a.push(i); for(i=n-1;i>0;i--){ j=Math.floor(Math.random()*(i+1)); t=a[i];a[i]=a[j];a[j]=t; } return a; }
+var app = document.getElementById("app"), anim=false;
+function $(id){ return document.getElementById(id); }
+function go(n){ state.step=n; if(n>state.max) state.max=n; save(); render(); window.scrollTo(0,0); }
+function stages(){
+  var h=""; for(var i=1;i<=5;i++){ var c=i===state.step?"cur":(i<=state.max?"seen":""); h+='<button class="'+c+'" data-s="'+i+'"'+(i<=state.max?"":" disabled")+'>'+STAGES[i-1]+'</button>'; }
+  var el=$("stages"); el.innerHTML=h;
+  var b=el.querySelectorAll("button"); for(var k=0;k<b.length;k++) b[k].onclick=function(){ var n=+this.getAttribute("data-s"); if(n<=state.max && n!==state.step) go(n); };
+}
+function bind(id, field, after){ var t=$(id); t.value=state[field]||""; t.oninput=function(){ state[field]=t.value; save(); if(after) after(); }; }
+function deckHtml(n){ var h='<div class="deck">'; for(var i=0;i<n;i++) h+='<button class="back" data-i="'+i+'" aria-label="Закрытая карта '+(i+1)+'"></button>'; return h+'</div>'; }
+function moneyFace(c, ex){
+  var h='<div class="face'+(anim?" anim":"")+'"><div class="deckname">Денежный блок</div><h3>'+esc(c.title)+'</h3><p>'+esc(c.text)+'</p><div class="lbl">Вопрос</div><p class="strong">'+esc(c.question)+'</p>';
+  if(ex && c.examples){ h+='<div class="lbl">Например</div><ul class="ex">'; for(var i=0;i<c.examples.length;i++) h+='<li>'+esc(c.examples[i])+'</li>'; h+='</ul>'; }
+  return h+'</div>';
+}
+function shadowFace(c, full, withBtn){
+  var h='<div class="face'+(anim?" anim":"")+'"><div class="deckname">Тень как ресурс</div><h3>'+esc(c.title)+'</h3>';
+  if(full) h+='<div class="lbl" style="margin-top:0">Ресурс</div><p class="strong" style="margin-bottom:14px">'+esc(c.resource)+'</p>';
+  h+='<p>'+esc(c.text)+'</p>';
+  if(full) h+='<div class="lbl">Послание</div><p class="strong">'+esc(c.message)+'</p>';
+  else if(withBtn) h+='<button class="btn light" id="unpack">Распаковать ресурс</button>';
+  return h+'</div>';
+}
+function val(t){ return t&&t.trim()?esc(t):"—"; }
+function opt(label,t){ return t&&t.trim()?'<div class="sum"><b>'+label+'</b><span>'+esc(t)+'</span></div>':''; }
+function render(){
+  stages();
+  var st=state.step, h="";
+  if(st===1){
+    h='<div class="cover"><div class="in"><div class="sp" role="img" aria-label="Ольга Кузьмина"></div><div class="top"><p class="name">Ольга Кузьмина</p><p class="eyebrow">Интерактив тренинга</p></div>'
+     +'<p class="sub">Деньги, Тень и право занимать своё место</p>'
+     +'<h1>Что мне нужно пробудить в себе, чтобы приблизиться к своей цели?</h1>'
+     +'<p class="lead">Выберите одну цель, которая сейчас для вас важна. Через две карточки вы исследуете, что останавливает движение и какой способностью можно воспользоваться.</p>'
+     +'<p class="lead">В конце вы соберёте свой результат, определите ближайшее действие и сможете перейти к медитации «Шаг».</p>'
+     +'<p class="muted">Ответы могут быть короткими. Вы сами решаете, чем поделиться на тренинге.</p>'
+     +'<label for="f1">Чего я хочу?</label><textarea id="f1" placeholder="Запишите цель, к которой хотите приблизиться."></textarea>'
+     +'<button class="btn light" id="n">Открыть мой денежный блок</button></div></div>';
+    app.innerHTML=h;
+    var upd=function(){ $("n").disabled=!state.goal.trim(); };
+    bind("f1","goal",upd); upd();
+    $("n").onclick=function(){ go(2); };
+  } else if(st===2){
+    h='<div class="panel"><h1>Что останавливает моё движение?</h1>'
+     +'<p class="lead">Вспомните свою цель. Нажмите на любую закрытую карту и прочитайте, какой вопрос она предлагает вам исследовать.</p>'
+     +'<p class="muted">Посмотрите, с чем в вашей жизни может перекликаться содержание карты.</p>';
+    if(state.money===null){
+      if(!state.mOrder){ state.mOrder=shuffle(DECKS.money.length); save(); }
+      app.innerHTML=h+deckHtml(36)+'</div>';
+      var b=app.querySelectorAll(".back"); for(var i=0;i<b.length;i++) b[i].onclick=function(){ state.money=state.mOrder[+this.getAttribute("data-i")]; save(); anim=true; render(); anim=false; };
+    } else {
+      h+=moneyFace(DECKS.money[state.money],true)
+       +'<label for="f1">Мой ответ</label><textarea id="f1" placeholder="Вспомните конкретную ситуацию. Что вам знакомо в описании? Если оно не подходит, это тоже можно отметить."></textarea>'
+       +'<button class="btn primary" id="n">Открыть мой ресурс</button></div>';
+      app.innerHTML=h; bind("f1","answer"); $("n").onclick=function(){ go(3); };
+    }
+  } else if(st===3){
+    h='<div class="panel"><h1>Какую способность мне пора вернуть себе?</h1>'
+     +'<p class="lead">Для движения к цели может потребоваться качество, которое вы привыкли сдерживать: настойчивость, инициативность, готовность занимать место, сохранять своё или выдерживать несогласие.</p>'
+     +'<p class="lead">В этой практике Тень — образ качеств и желаний, которые трудно признать своими. Откройте карту и исследуйте, какая способность может стать вашим ресурсом.</p>';
+    if(state.shadow===null){
+      if(!state.sOrder){ state.sOrder=shuffle(DECKS.shadow.length); save(); }
+      app.innerHTML=h+'<p class="muted">Нажмите на любую закрытую карту.</p>'+deckHtml(24)+'</div>';
+      var b2=app.querySelectorAll(".back"); for(var j=0;j<b2.length;j++) b2[j].onclick=function(){ state.shadow=state.sOrder[+this.getAttribute("data-i")]; save(); anim=true; render(); anim=false; };
+    } else {
+      h+=shadowFace(DECKS.shadow[state.shadow],true)
+       +'<label for="f1">Как я могу использовать эту способность для своей цели?</label><textarea id="f1" placeholder="Что смогу сказать, предложить, изменить или прекратить? Запишите то, что подходит вашей ситуации."></textarea>'
+       +'<button class="btn primary" id="n">Определить мой шаг</button></div>';
+      app.innerHTML=h; bind("f1","use"); $("n").onclick=function(){ go(4); };
+    }
+  } else if(st===4){
+    var s4=DECKS.shadow[state.shadow], m4=DECKS.money[state.money];
+    h='<div class="panel"><h1>Какой шаг я сделаю?</h1>'
+     +'<p class="lead">Перед вами — ваша цель и найденный ресурс. Выберите конкретное действие, которое зависит от вас и позволит попробовать новый способ поведения.</p>'
+     +'<div class="recap"><div class="sum"><b>Моя цель</b><span>'+val(state.goal)+'</span></div>'
+     +'<div class="sum"><b>Мой денежный блок</b><span>'+(m4?esc(m4.title):"—")+'</span></div>'
+     +'<div class="sum"><b>Мой ресурс</b><span>'+(s4?esc(s4.title)+'. '+esc(s4.resource):"—")+'</span></div>'
+     +opt('Как я могу его использовать',state.use)+'</div>'
+     +'<label for="f1">Я сделаю…</label><textarea id="f1" placeholder="Напишу, предложу, обсужу, опубликую, уточню, обозначу условия… Укажите, что именно."></textarea>'
+     +'<p class="muted" style="margin-top:14px">Пусть шаг будет посильным и достаточно конкретным, чтобы вы могли заметить: действие выполнено.</p>'
+     +'<button class="btn primary" id="n">Собрать мой результат</button></div>';
+    app.innerHTML=h;
+    var upd4=function(){ $("n").disabled=!state.action.trim(); };
+    bind("f1","action",upd4); upd4();
+    $("n").onclick=function(){ go(5); };
+  } else {
+    var m=DECKS.money[state.money], s5=DECKS.shadow[state.shadow];
+    h='<div class="panel"><h1>Мой шаг к цели</h1>'
+     +'<p class="lead noprint">Здесь собрана ваша работа: цель, две открытые карточки, личные ответы и ближайшее действие. Сохраните результат, чтобы вернуться к нему после тренинга.</p>'
+     +'<div class="block"><h2>Моя цель</h2><div class="sum"><span>'+val(state.goal)+'</span></div>'
+     +'</div>'
+     +'<div class="block"><h2>Мой денежный блок</h2>'+(m?moneyFace(m):"")
+     +opt('Мой ответ',state.answer)+'</div>'
+     +'<div class="block"><h2>Моя Тень как ресурс</h2>'+(s5?shadowFace(s5,true):"")
+     +opt('Как я использую эту способность',state.use)+'</div>'
+     +'<div class="block"><h2>Мой шаг</h2><div class="sum"><span>'+val(state.action)+'</span></div></div>'
+     +'<p class="closing">Я признаю своё желание и выбираю, как участвовать в его осуществлении.</p>'
+     +'<button class="btn primary" id="sv">Сохранить мой результат</button>'
+     +'<p class="saved" id="svmsg" aria-live="polite"></p>'
+     +'<button class="btn secondary" id="ed">Изменить мои ответы</button>'
+     +'<button class="btn secondary" id="del">Начать заново</button></div>'
+     +'<div class="med"><div class="in"><p class="eyebrow">Медитация</p><h2>Шаг. Диалог с будущей версией себя</h2>'
+     +'<p class="noprint">Вы уже назвали свою цель и исследовали способность, которую хотите использовать. Теперь попробуйте представить себя в будущем, где вы действуете с большей свободой.</p>'
+     +'<p class="noprint">Во время медитации обратите внимание, как вы говорите о своих желаниях, принимаете решения и встречаетесь с ответами окружающих. Заметьте, что из этого образа можно перенести в ближайшее действие.</p>'
+     +'<p class="muted noprint">Выберите место, где можно спокойно уделить внимание себе. Устройтесь удобно. Глаза можно закрыть или оставить открытыми. Запись можно поставить на паузу в любой момент.</p>'
+     +'<audio controls preload="metadata" src="'+AUDIO_SRC+'"></audio>'
+     +'<a class="btn light" href="'+AUDIO_SRC+'" download="Шаг — Ольга Кузьмина.mp3">Скачать медитацию</a>'
+     +'<p class="muted noprint" style="margin-top:12px">Сохраните запись, чтобы возвращаться к практике после тренинга или перед важным шагом.</p>'
+     +(MEDITATION_URL?'<p class="printonly">Медитация: '+esc(MEDITATION_URL)+'</p>':'')
+     +'</div></div>'
+     +'<div class="panel contacts noprint"><h2>Оставайтесь на связи</h2>'
+     +'<p class="lead">Мой канал и страница, где я пишу о психологии, деньгах и отношениях.</p>'
+     +'<a class="btn primary" href="https://t.me/kuz_mi_na_1" target="_blank" rel="noopener">Telegram-канал</a>'
+     +'<a class="btn secondary" href="https://www.instagram.com/kuz.mi.na" target="_blank" rel="noopener">Instagram</a>'
+     +'<h2 style="margin-top:30px">Запись на приём и вопросы</h2>'
+     +'<p class="lead">Напишите мне лично в удобном мессенджере.</p>'
+     +'<div class="mess"><a href="https://t.me/kuz_mi_na" target="_blank" rel="noopener">Telegram</a><a href="https://wa.me/79282796757" target="_blank" rel="noopener">WhatsApp</a><a href="https://max.ru/u/f9LHodD0cOIkjEBBxjwl64vdJ1sDWhaIB31jlghpJ2FVfw4hT2FL6WcJC6Y" target="_blank" rel="noopener">MAX</a></div></div>'
+     +'<div class="sign">Ольга Кузьмина. Проявленность</div>';
+    app.innerHTML=h;
+    $("sv").onclick=function(){
+      var L=["ПРОЯВЛЕННОСТЬ. Мой шаг к цели","","МОЯ ЦЕЛЬ",state.goal,"","МОЙ ДЕНЕЖНЫЙ БЛОК: "+m.title,m.text,"Вопрос: "+m.question];
+      if(state.answer.trim()) L.push("Мой ответ: "+state.answer);
+      L.push("","МОЯ ТЕНЬ КАК РЕСУРС: "+s5.title,"Ресурс: "+s5.resource,s5.text,"Послание: "+s5.message);
+      if(state.use.trim()) L.push("Как я использую эту способность: "+state.use);
+      L.push("","МОЙ ШАГ",state.action,"","Я признаю своё желание и выбираю, как участвовать в его осуществлении.");
+      if(MEDITATION_URL) L.push("","Медитация «Шаг»: "+MEDITATION_URL);
+      L.push("","Ольга Кузьмина. Проявленность");
+      var txt=L.join("\n"), msg=$("svmsg");
+      var copy=function(){
+        if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){ msg.textContent="Результат скопирован. Вставьте его в заметки или в «Избранное» в Telegram."; },function(){ msg.textContent="Сделайте скриншот этого экрана."; });
+        else msg.textContent="Сделайте скриншот этого экрана.";
+      };
+      if(navigator.share) navigator.share({title:"Проявленность. Мой шаг к цели",text:txt}).then(function(){ msg.textContent="Готово."; },function(e){ if(!e||e.name!=="AbortError") copy(); });
+      else copy();
+    };
+    $("ed").onclick=function(){ go(1); };
+    $("del").onclick=function(){ if(confirm("Начать заново? Ваши ответы и выбранные карты сотрутся.")){ state=fresh(); try{localStorage.removeItem(KEY);}catch(e){} render(); window.scrollTo(0,0); } };
+  }
+}
+render();
+</script>
+</body>
+</html>
